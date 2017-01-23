@@ -128,6 +128,25 @@ router.get('/logout', function (req, res) {
         })
 });
 
+/**
+ *
+ * description : delete a user from the DB if he still got some tips to deal with he is not delete
+ * /users/removeuser:
+ *   post:
+ *     parameters:
+ *       - name: token
+ *         description: JWT  generate at login
+ *         in: header
+ *         required: true
+ */
+router.post('/removeuser', function (req, res) {
+    var removeUser = usersService.removeUser(req);
+    removeUser.then(function (retour) {
+        res.send(200, retour);
+    }).catch(function (erreur) {
+        res.send(400, erreur);
+    })
+});
 
 
 

@@ -13,11 +13,11 @@ var successMessage = {
     ,
     "statusCode": {}
 };
-var failedMessage ={
+var failedMessage = {
     "Success": false,
     "message": {}
-,
-"statusCode": {}
+    ,
+    "statusCode": {}
 }
 
 var registerUser = function (user) {
@@ -42,7 +42,7 @@ var registerUser = function (user) {
                 return deferred.promise;
             }
         })
-        .then(function(){
+        .then(function () {
             failedMessage = {};
             failedMessage.message = ('USER_EMAIL_UNIQUE');
             failedMessage.statusCode = 409;
@@ -85,7 +85,7 @@ var login = function (emailPassword) {
                 failedMessage.message = ('USER_WRONG_PASSWORD')
                 deferred.reject(failedMessage);
             }
-            else{
+            else {
                 var tokenAuth = jwt.sign({email: res.email}, "TRALALALALA", {
                     expiresIn: '60m',
                     algorithm: 'HS256'
@@ -191,7 +191,7 @@ function checkToken(req) {
             .catch(function () {
                 failedMessage.message = {};
                 failedMessage.statusCode = 401;
-                failedMessage.message =('USER_DOCUMENT_NOT_FOUND');
+                failedMessage.message = ('USER_DOCUMENT_NOT_FOUND');
                 deferred.reject(failedMessage);
             })
         return deferred.promise;
@@ -206,10 +206,42 @@ function checkToken(req) {
     return deferred.promise;
 };
 
+/**
+ * function to  request deleting a profile from the DB
+ * @param token
+ * @return Object deleted
+ */
+
+function removeUser(req) {
+    var deferred = Q.defer();
+    checkToken(req)
+        .then(function (decoded) {
+            var deleteUser = usersDao.deleteUser(decoded.email);
+            deleteUser
+                .then(function (res) {
+                    successMessage = {};
+                    successMessage.statusCode = 200;
+                    successMessage.infos = ('USER_FOUND_DOCUMENT_DELETE');
+                    deferred.resolve(successMessage);
+                    console.log("User has been delete");
+                })
+                .catch(function (err) {
+                    deferred.reject(err);
+                })
+            return deferred.promise;
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
+
+
 module.exports = {
-    registerUser:registerUser,
+    registerUser: registerUser,
     getUser: getUser,
     login: login,
     logout: logout,
     checkToken: checkToken,
+    removeUser: removeUser
 };

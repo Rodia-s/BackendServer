@@ -131,10 +131,39 @@ var deleteToken = function (mail) {
     return deferred.promise;
 };
 
+/**
+ * Delete User identify it by the token that has been generate previously
+ * @param mail -> from the token decode
+ * @returns {*|promise}
+ */
+var deleteUser = function (promesse) {
+    var deferred = Q.defer();
+    console.log(promesse);
+    userCollection.findOneAndRemove({"email": promesse}, function (err, res) {
+        if (err) {
+            failedMessage.message = {};
+            failedMessage.message = 'USER_MONGODB_ERROR';
+            failedMessage.statusCode = 500;
+            failedMessage.infos = err;
+            deferred.reject(failedMessage);
+        }
+        if (res !== null) {
+            deferred.resolve(res);
+        }
+        else {
+            failedMessage.message = {};
+            failedMessage.message = ('USER_DOCUMENT_NOT_FOUND');
+            failedMessage.statusCode = 400;
+            deferred.reject(failedMessage);
+        }
+    });
+    return deferred.promise;
+};
 
 module.exports = {
     registerUser:registerUser,
     getUserByMail: getUserByMail,
     login: login,
     deleteToken: deleteToken,
+    deleteUser: deleteUser,
 };
