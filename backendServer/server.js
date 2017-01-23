@@ -32,13 +32,14 @@ mongoose.connect(config.appConfig.mongoServer);
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/)
 var usersService = require("./service/usersService.js");
+var filmsService = require("./service/filmsService")
 
 router.get('/b', function (req, res) {
     res.send('hooray! welcome to our api!');
 });
 
 /**
- * /users/verifyemail:
+ * /api/verifyemail:
  *   get:
  *     description: verify email from the user after he gets register he receive a mail with a link and a token this function check the token validity
  *     produces:
@@ -63,7 +64,7 @@ router.post('/register', function (req, res) {
         })
 });
 /**
- * /users/login:
+ * /api/login:
  *   post:
  *     description: Log user with email and password and replying a JWT
  *     parameters:
@@ -87,7 +88,7 @@ router.post('/login', function (req, res) {
 });
 
 /**
- * /users/logout:
+ * /api/logout:
  *   get:
  *     description: Logout user if he got the good JWT and delete it from the DB(to generate a valid token use login)
  *     parameters:
@@ -108,7 +109,7 @@ router.get('/logout', function (req, res) {
 });
 
 /**
- * /users/logout:
+ * /api/logout:
  *   get:
  *     description: Logout user if he got the good JWT and delete it from the DB(to generate a valid token use login)
  *     parameters:
@@ -131,7 +132,7 @@ router.get('/logout', function (req, res) {
 /**
  *
  * description : delete a user from the DB if he still got some tips to deal with he is not delete
- * /users/removeuser:
+ * /api/removeuser:
  *   post:
  *     parameters:
  *       - name: token
@@ -148,7 +149,80 @@ router.post('/removeuser', function (req, res) {
     })
 });
 
+/**
+ * dscription : function to update some infos of the profile user
+ * /api/updateuser:
+ *   post:
+ *     parameters:
+ *       - name: updateUser
+ *         description: fields that user want to update
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/updateUser'
+ *       - name: token
+ *         description: token that authenticate user
+ *         in: header
+ *         required: true
+ */
+router.post('/updateuser', function (req, res) {
+    usersService.updateUser(req)
+        .then(function (doc) {
+            res.send(doc);
+        })
+        .catch(function (err) {
+            res.send(err);
+        })
+});
+
+/**
+ * /api/addFilms:
+ *   post:
+ *     description: Creates new tips with field enter by the user
+ *     parameters:
+ *       - name: tips
+ *         description: tips object
+ *         in: body
+ *       - name: token
+ *         description: JWT object
+ *         in: header
+ *         required: true
+ */
+router.post('/addfilms', function (req, res) {
+    console.log(req.body);
+    filmsService.addFilms(req)
+        .then(function (retour) {
+            res.send(retour.statusCode, retour);
+        })
+        .catch(function (err) {
+            res.send(err.statusCode, err);
+        })
+});
 
 
+/**
+ * /tips/getallfilms
+ *   get:
+ *     tags:
+ *       - get all Tips
+ *     description: get all tips data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: token
+ *         description: JWT object
+ *         in: header
+ *         required: true
+ */
+router.get('/getallfilms', function (req, res) {
+    var allTips = filmsService.getAllFilms(req);
+    allTips
+        .then(function (retour) {
+            res.send(retour.statusCode, retour);
+        })
+        .catch(function (err) {
+            res.send(err.statusCode, err);
+        })
+});
 
 module.exports = app;

@@ -237,11 +237,53 @@ function removeUser(req) {
 };
 
 
+/**
+ * function updateUser that allow user to change some of his infos
+ * @param req
+ * @returns {*}
+ */
+function updateUser(req) {
+    var deferred = Q.defer();
+    console.log(req.body);
+    var newProfile = req.body;
+    checkToken(req)
+        .then(function (decoded) {
+            var tokenAu = jwt.sign({email: decoded.email}, "TRALALALALA", {
+                expiresIn: '60m',
+                algorithm: 'HS256'
+            });
+            newProfile.token = tokenAu;
+            console.log(newProfile)
+            newProfile.password = hashPassword(newProfile.password);
+            var updateUser = usersDao.updateUser(decoded.email, newProfile);
+            updateUser
+                .then(function () {
+                    req.body.password = undefined;
+                    successMessage.infos = {};
+                    successMessage.statusCode = 200;
+                    successMessage.infos = req.body;
+                    deferred.resolve(successMessage);
+                })
+                .catch(function (err) {
+                    deferred.reject(err);
+                })
+            return deferred.promise
+        })
+        .catch(function (err) {
+            err.token = undefined;
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
+
+
+
 module.exports = {
     registerUser: registerUser,
     getUser: getUser,
     login: login,
     logout: logout,
     checkToken: checkToken,
-    removeUser: removeUser
+    removeUser: removeUser,
+    updateUser: updateUser
 };

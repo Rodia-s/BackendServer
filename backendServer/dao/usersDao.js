@@ -16,7 +16,7 @@ var failedMessage ={
     "message": {}
     ,
     "statusCode": {}
-}
+};
 /**
  * function which enter a new profile in the DB
  * @param user1
@@ -160,10 +160,42 @@ var deleteUser = function (promesse) {
     return deferred.promise;
 };
 
+/**
+* function that change in DB the data that the user want to change
+* @param mail
+* @param newData
+* @returns {*|promise}
+*/
+var updateUser = function (mail, newData) {
+    var deferred = Q.defer();
+    var newUser = userCollection(newData);
+    console.log(newUser);
+    console.log(mail)
+    userCollection.findOneAndUpdate({"email": mail}, newUser, function (err, res) {
+        if (err) {
+            failedMessage.message = {};
+            failedMessage.message = ('USER_MONGODB_ERROR');
+            failedMessage.infos = err;
+            deferred.reject(failedMessage);
+        }
+        if (res === null) {
+            failedMessage.message = {};
+            failedMessage.statusCode = 400;
+            failedMessage.message = ('USER_DOCUMENT_NOT_FOUND');
+            deferred.reject(failedMessage);
+        }
+        else {
+            deferred.resolve(res);
+        }
+    });
+    return deferred.promise;
+};
+
 module.exports = {
     registerUser:registerUser,
     getUserByMail: getUserByMail,
     login: login,
     deleteToken: deleteToken,
     deleteUser: deleteUser,
+    updateUser: updateUser
 };

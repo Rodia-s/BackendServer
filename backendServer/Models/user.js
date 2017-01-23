@@ -11,7 +11,8 @@ var Schema = mongoose.Schema;
 module.exports = mongoose.model('userCollection', new Schema({
         password: {type: String, null: true, selected: false},
         email: {type: String, null: false, unique: true},
-        token: {type: String, null: true}
+        token: {type: String, null: true},
+        _id: {type: String, null: false, immutable: false},
     },
     {
         versionKey: false // You should be aware of the outcome after set to false
