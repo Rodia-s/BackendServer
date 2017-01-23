@@ -102,10 +102,39 @@ function getUserByMail(mail) {
     return deferred.promise;
 };
 
+/**
+ * function that delete the token to logout the user
+ * @param mail
+ * @returns {*|promise}
+ */
+var deleteToken = function (mail) {
+    var deferred = Q.defer();
+    var newToken = null;
+    userCollection.findOneAndUpdate({"email": mail}, {$set: {token: newToken}}, function (err, res) {
+        if (err) {
+            failedMessage.message = {};
+            failedMessage.message = ('USER_MONGODB_ERROR');
+            failedMessage.statusCode = 500;
+            failedMessage.infos = err;
+            deferred.reject(failedMessage);
+        }
+        if (res === null) {
+            failedMessage.message = {};
+            failedMessage.message = 500
+            failedMessage.message = ('USER_DOCUMENT_NOT_FOUND');
+            deferred.reject(failedMessage);
+        }
+        else {
+            deferred.resolve(res);
+        }
+    });
+    return deferred.promise;
+};
 
 
 module.exports = {
     registerUser:registerUser,
     getUserByMail: getUserByMail,
-    login: login
+    login: login,
+    deleteToken: deleteToken,
 };

@@ -107,6 +107,26 @@ router.get('/logout', function (req, res) {
         })
 });
 
+/**
+ * /users/logout:
+ *   get:
+ *     description: Logout user if he got the good JWT and delete it from the DB(to generate a valid token use login)
+ *     parameters:
+ *       - name: token
+ *         description: JWT generate at login
+ *         in: header
+ *         required: true
+ */
+router.get('/logout', function (req, res) {
+    var logout = usersService.logout(req);
+    logout.then(function (retour) {
+        res.send(retour.statusCode, retour);
+    })
+        .catch(function (err) {
+            console.log("failed to logout");
+            res.send(err.statusCode, err);
+        })
+});
 
 
 

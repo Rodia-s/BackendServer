@@ -130,8 +130,86 @@ function getUser(mail) {
     return deferred.promise;
 };
 
+/**
+ * function to logout user (deleting the JWT token from the DB)
+ * @param req
+ * @returns {*}
+ */
+function logout(req) {
+    var deferred = Q.defer();
+    checkToken(req)
+        .then(function (decodedToken) {
+            var deleteToken = usersDao.deleteToken(decodedToken.email);
+            deleteToken
+                .then(function () {
+                    successMessage.infos = {};
+                    successMessage.statusCode = 200;
+                    successMessage.infos = ('USER_LOGOUT')
+                    deferred.resolve(successMessage);
+                })
+                .catch(function (err) {
+                    deferred.reject(err);
+                })
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
+
+
+/**la fonction vérifie puis décode le mot de passe pour obtenir l'email du userCollection et toute ces infos
+ * @param requête
+ * @return code OK pour le token
+ */
+function checkToken(req) {
+    var token = req.headers['token'];
+    console.log(token);
+    var deferred = Q.defer();
+    console.log("J'essaye de décoder");
+    try {
+        jwt.verify(token, "TRALALALALA");
+        console.log(jwt.verify(token, "TRALALALALA"));
+        var decoded = jwt.decode(token, "TRALALALALA");
+        var userFound = usersDao.getUserByMail(decoded.email)
+        userFound
+            .then(function (res) {
+                if (res.token !== token) {          // check if token receive is the same that in th DB 
+                    console.log(res.token);
+                    failedMessage.message = {};
+                    failedMessage.statusCode = 401
+                    failedMessage.message = ('USER_TOKEN_INVALIDITY');
+                    deferred.reject(failedMessage);
+                }
+                else {
+                    console.log('lala');
+                    console.log(userFound);
+                    deferred.resolve(userFound);
+                }
+                return deferred.promise;
+            })
+            .catch(function () {
+                failedMessage.message = {};
+                failedMessage.statusCode = 401;
+                failedMessage.message =('USER_DOCUMENT_NOT_FOUND');
+                deferred.reject(failedMessage);
+            })
+        return deferred.promise;
+    }
+    catch (err) {
+        failedMessage.message = {};
+        failedMessage.statusCode = 401;
+        failedMessage.message = ('USER_TOKEN_INVALIDITY');
+        console.log(failedMessage);
+        deferred.reject(failedMessage);
+    }
+    return deferred.promise;
+};
+
 module.exports = {
     registerUser:registerUser,
     getUser: getUser,
-    login: login 
+    login: login,
+    logout: logout,
+    checkToken: checkToken,
 };
