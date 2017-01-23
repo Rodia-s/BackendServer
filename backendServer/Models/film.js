@@ -7,7 +7,7 @@ var Schema = mongoose.Schema;
 
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('filmCollection', new Schema({
-    title: {type: String, null: false},
+    title: {type: String, null: false, immutable : true },
     release_date: {type:Number , null: false},
     director: {type: String, null: false},
     type: {type: String,enum: ['Comedy', 'Drama', 'Action','Adventure','Comedy','Crime','Drama','Historical','Horror','Musical','Science Fiction','Western','Other'], null: false},

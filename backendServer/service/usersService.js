@@ -276,6 +276,22 @@ function updateUser(req) {
     return deferred.promise;
 };
 
+/**
+ * function to find user with his token
+ * @param req
+ * @returns {*}
+ */
+function findUserByToken(req) {
+    var deferred = Q.defer();
+    checkToken(req)
+        .then(function (decodedToken) {
+            deferred.resolve(decodedToken);
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
 
 
 module.exports = {
@@ -285,5 +301,6 @@ module.exports = {
     logout: logout,
     checkToken: checkToken,
     removeUser: removeUser,
-    updateUser: updateUser
+    updateUser: updateUser,
+    findUserByToken : findUserByToken,
 };

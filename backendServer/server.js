@@ -107,28 +107,21 @@ router.get('/logout', function (req, res) {
             res.send(err.statusCode, err);
         })
 });
-
 /**
- * /api/logout:
- *   get:
- *     description: Logout user if he got the good JWT and delete it from the DB(to generate a valid token use login)
- *     parameters:
- *       - name: token
- *         description: JWT generate at login
- *         in: header
- *         required: true
+ * function finduser is a function that return the profile of the user with the token
+ * parameter :
+ * header: token
  */
-router.get('/logout', function (req, res) {
-    var logout = usersService.logout(req);
-    logout.then(function (retour) {
-        res.send(retour.statusCode, retour);
-    })
+router.get('/finduser', function (req, res) {
+    var oneUser = usersService.findUserByToken(req);
+    oneUser
+        .then(function (userFound) {
+            res.send(200, userFound);
+        })
         .catch(function (err) {
-            console.log("failed to logout");
             res.send(err.statusCode, err);
         })
 });
-
 /**
  *
  * description : delete a user from the DB if he still got some tips to deal with he is not delete
@@ -201,11 +194,26 @@ router.post('/addfilms', function (req, res) {
 
 
 /**
+ * function that reply a film taking his title and The JWT in headers as argument
+ * parameter :
+ * header = token + title films 
+ */
+router.get('/getFilmById', function(req,res){
+    filmsService.getFilmById(req)
+        .then(function(result){
+            res.send(200,result);
+        })
+        .catch(function(err){
+            res.send(err.statusCode, err);
+        })
+})
+
+/**
  * /tips/getallfilms
  *   get:
  *     tags:
- *       - get all Tips
- *     description: get all tips data
+ *       - get all films
+ *     description: get all films data
  *     produces:
  *       - application/json
  *     parameters:
@@ -215,13 +223,37 @@ router.post('/addfilms', function (req, res) {
  *         required: true
  */
 router.get('/getallfilms', function (req, res) {
-    var allTips = filmsService.getAllFilms(req);
-    allTips
+    var allFilms = filmsService.getAllFilms(req);
+    allFilms
         .then(function (retour) {
             res.send(retour.statusCode, retour);
         })
         .catch(function (err) {
             res.send(err.statusCode, err);
+        })
+});
+
+/**
+ * /tips/removefilm
+ *     description:  delete film
+ *     parameters:
+ *       - name: title
+ *         description: string
+ *         in: body
+ *         required: true
+ *       - name: token
+ *         description: JWT object
+ *         in: header
+ *         required: true
+ */
+router.post('/removefilm', function (req, res) {
+    filmsService.removeFilms(req)
+        .then(function (retour) {
+            console.log(retour);
+            res.send(retour);
+        })
+        .catch(function (err) {
+            res.send(err);
         })
 });
 

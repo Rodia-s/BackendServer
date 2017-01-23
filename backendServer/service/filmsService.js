@@ -28,7 +28,7 @@ var failedMessage = {
 function addFilms(req) {
     var deferred = Q.defer();
     console.log(req.body);
-    var films = req.body ;
+    var films = req.body;
     usersService.checkToken(req)
         .then(function (decoded) {
             films.uploader = decoded.email;
@@ -43,8 +43,8 @@ function addFilms(req) {
             return deferred.promise;
         })
         .catch(function (err) {
-                deferred.reject(err)
-            })
+            deferred.reject(err)
+        })
     return deferred.promise;
 };
 
@@ -75,7 +75,59 @@ function getAllFilms(req) {
     return deferred.promise;
 };
 
+/**
+ * function that remove a tips with his id (first looking for the token for security)
+ * @type {{addTips: addTips, getAllTips: getAllTips}}
+ */
+function removeFilms(req) {
+    var deferred = Q.defer();
+    var filmToDelete = req.body;
+    usersService.checkToken(req)
+        .then(function (decoded) {
+            console.log(decoded.email)
+            filmsDao.removeFilm(filmToDelete)
+                .then(function (res) {
+                    res.statusCode = 200;
+                    deferred.resolve(res);
+                })
+                .catch(function (err) {
+                    deferred.reject(err)
+                })
+            return deferred.promise;
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
+
+/**
+ * function to get the tips you want
+ * @param req -> headers contains id of the tips and JWT
+ * @returns {*|promise}
+ */
+function getFilmById(req) {
+    var deferred = Q.defer();
+    usersService.checkToken(req)
+        .then(function (res) {
+            filmsDao.getFilmById(req.headers.title)
+                .then(function (res) {
+                    deferred.resolve(res);
+                })
+                .catch(function (err) {
+                    deferred.reject(err);
+                })
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+
+    return deferred.promise;
+}
+
 module.exports = {
-   addFilms:addFilms,
+    addFilms: addFilms,
     getAllFilms: getAllFilms,
+    removeFilms:removeFilms,
+    getFilmById: getFilmById
 };
