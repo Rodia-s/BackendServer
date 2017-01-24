@@ -131,9 +131,53 @@ function removeFilm(req) {
 };
 
 
+/**
+ * function to update every fields of a tips (get some conditions on it: time can't be )
+ * @param film
+ * @param title
+ * @returns {*|promise}
+ */
+function updateFilm(newFilm) {
+    var deferred = Q.defer();
+    console.log(newFilm);
+    filmCollection.findOneAndUpdate({"title": newFilm.title}, {
+        $set: {
+            "title": newFilm.newTitle,
+            "release_date": newFilm.release_date,
+            "director": newFilm.director,
+            "type": newFilm.type,
+            "cast": newFilm.cast,
+            "upload_date": newFilm.upload_date,
+            "uploader": newFilm.uploader,
+            "trailer_link": newFilm.trailer_link
+        }
+    }, function (err, res) {
+        if (err) {
+            failedMessage.message = {};
+            failedMessage.statusCodes = 500;
+            failedMessage.message = ('TIPS_MONGODB_ERROR');
+            deferred.reject(failedMessage);
+        }
+        if (res !== null) {
+            successMessage = {};
+            successMessage.infos = ('TIPS_FOUND_AND_UPDATE');
+            console.log("Document trouvé" + res);
+            deferred.resolve(successMessage);
+        }
+        else {
+            failedMessage.message = {};
+            failedMessage.statusCodes = 400;
+            failedMessage.message = ('USER_DOCUMENT_NOT_FOUND');
+            deferred.reject(failedMessage);
+        }
+    });
+    return deferred.promise;
+};
+
 module.exports = {
     saveFilms: saveFilms,
     getAllFilms:getAllFilms,
     removeFilm : removeFilm, 
-    getFilmById: getFilmById
+    getFilmById: getFilmById,
+    updateFilm: updateFilm
 };

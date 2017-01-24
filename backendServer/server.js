@@ -257,4 +257,29 @@ router.post('/removefilm', function (req, res) {
         })
 });
 
+/**
+ * /tips/updatefilm:
+ *     description:  update tips
+ *     parameters:
+ *       - name: token
+ *         description: JWT object
+ *         in: header
+ *         required: true
+ *       - name: tipstoupdate
+ *         description: Json object
+ *         in: body
+ *         required: true
+ */
+router.post('/updatefilms', function (req, res) {
+    filmsService.updateFilm(req)
+        .then(function (retour) {
+            console.log(retour);
+            res.send(retour);
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.send(err);
+        })
+});
+
 module.exports = app;

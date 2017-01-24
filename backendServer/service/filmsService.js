@@ -123,11 +123,51 @@ function getFilmById(req) {
         })
 
     return deferred.promise;
-}
+};
+
+/**
+ * function that allow to update a film
+ * @param req
+ * @returns {*|promise}
+ */
+function updateFilm(req) {
+    var deferred = Q.defer();
+    var newFilm = req.body;
+    usersService.checkToken(req)
+        .then(function (decoded) {
+            filmsDao.getFilmById(req.body.title)
+                .then(function (film) {
+                    if (film.uploader === decoded.email) {  
+                        newFilm.uploader = decoded.email;
+                        newFilm.upload_date = Date.now();
+                        filmsDao.updateFilm(newFilm)
+                            .then(function (res) {
+                                deferred.resolve(res);
+                            }).catch(function (err) {
+                            deferred.reject(err);
+                        })
+                        return deferred.promise;
+                    }
+                    else {
+                        failedMessage = {};
+                        failedMessage.statusCode = 401
+                        failedMessage.message = ('TIPS_ERROR_USER');
+                        deferred.reject(failedMessage)
+                    }
+                }).catch(function (err) {
+                deferred.reject(err);
+            })
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        })
+    return deferred.promise;
+};
 
 module.exports = {
     addFilms: addFilms,
     getAllFilms: getAllFilms,
-    removeFilms:removeFilms,
-    getFilmById: getFilmById
+    removeFilms: removeFilms,
+    getFilmById: getFilmById,
+    updateFilm: updateFilm
 };
