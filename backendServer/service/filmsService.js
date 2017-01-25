@@ -164,10 +164,43 @@ function updateFilm(req) {
     return deferred.promise;
 };
 
+
+function getFilmByType(req){
+    var deferred = Q.defer();
+    console.log(req.headers.type);
+    usersService.checkToken(req)
+        .then(function(decoded){
+            console.log('je vais chercher');
+            filmsDao.getFilmByType(req)
+                .then(function(films){
+                    deferred.resolve(films)
+                })
+                .catch(function(err){
+                    deferred.reject(err)
+                })
+            return deferred.promise;
+        })
+    return deferred.promise;
+};
+
+function getLast4Update(){
+    var deferred= Q.defer();
+            filmsDao.getLast4Update()
+                .then(function(films){
+                    deferred.resolve(films)
+                })
+                .catch(function(err) {
+                    deferred.reject(err)
+                })
+    return deferred.promise;
+};
+
 module.exports = {
     addFilms: addFilms,
     getAllFilms: getAllFilms,
     removeFilms: removeFilms,
     getFilmById: getFilmById,
-    updateFilm: updateFilm
+    updateFilm: updateFilm,
+    getFilmByType: getFilmByType,
+    getLast4Update: getLast4Update,
 };

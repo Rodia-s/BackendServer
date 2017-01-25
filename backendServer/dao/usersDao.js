@@ -91,11 +91,10 @@ function getUserByMail(mail) {
             deferred.reject(failedMessage);
         }
         if (res !== null) {
-            console.log("popopa")
+            
             deferred.resolve(res);
         }
         else {
-            console.log("popopi")
             deferred.reject();
         }
     });

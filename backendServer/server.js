@@ -185,10 +185,10 @@ router.post('/addfilms', function (req, res) {
     console.log(req.body);
     filmsService.addFilms(req)
         .then(function (retour) {
-            res.send(retour.statusCode, retour);
+            res.send(retour);
         })
         .catch(function (err) {
-            res.send(err.statusCode, err);
+            res.send(err);
         })
 });
 
@@ -278,6 +278,29 @@ router.post('/updatefilms', function (req, res) {
         })
         .catch(function (err) {
             console.log(err);
+            res.send(err);
+        })
+});
+
+/**
+ * 
+ */
+router.get('/getfilmbytype', function (req,res){
+    filmsService.getFilmByType(req)
+        .then(function(retour){
+            res.send(retour);
+        })
+        .catch(function(err){
+            res.send(err)
+        })
+});
+
+router.get('/getlast4upload',function(req,res){
+    filmsService.getLast4Update()
+        .then(function(retour){
+            res.send(retour);
+        })
+        .catch(function(err){
             res.send(err);
         })
 });

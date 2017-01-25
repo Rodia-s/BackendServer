@@ -12,7 +12,7 @@ var successMessage = {
     ,
     "statusCode": {}
 };
-var failedMessage ={
+var failedMessage = {
     "Success": false,
     "message": {}
     ,
@@ -174,10 +174,81 @@ function updateFilm(newFilm) {
     return deferred.promise;
 };
 
+
+/**
+ * function that reply film sort by type
+ *@params: type of film Normalisé
+ * @type {}
+ */
+function getFilmByType(req) {
+    var deferred = Q.defer();
+    console.log(req.headers.type)
+    filmCollection.find({"type": req.headers.type}, '', function (err, res) {
+        if (err) {
+            failedMessage.message = {};
+            failedMessage.statusCode = 500;
+            failedMessage.message = ('TIPS_MONGODB_ERROR');
+            deferred.reject(err);
+        }
+        if (res[0] !== undefined) {
+            var arr = [];
+            for (var i = 0; i < res.length; i++) {
+                arr[i] = res[i];
+            }
+            console.log(arr);
+            deferred.resolve(arr);
+        }
+        else {
+            deferred.reject();
+        }
+    })
+    return deferred.promise;
+};
+/**
+ * function that return the last 4 films
+ * @param req
+ * @returns {*}
+ */
+function getLast4Update(req) {
+    var deferred = Q.defer();
+    filmCollection.find({})
+        .sort({'release_date': -1})
+        .limit(4)
+        .exec(function (err, posts) {
+            if (posts != undefined) {
+                console.log(posts);
+                if (posts[0] !== undefined) {
+                    var arr = [];
+                    for (var i = 0; i < 4; i++) {
+                        arr[i] = posts[i];
+                    }
+                    console.log(arr);
+                    deferred.resolve(arr);
+                }
+                else {
+                    failedMessage = {};
+                    failedMessage.statusCode = 400;
+                    failedMessage.message = ('FILMS_NOT_FOUND');
+                    deferred.reject(failedMessage);
+                }
+            }
+            else {
+                failedMessage = {};
+                failedMessage.statusCode = 400;
+                failedMessage.message = ('FILMS_NOT_FOUND');
+                deferred.reject(failedMessage);
+            }
+        })
+    return deferred.promise;
+}
+
+
 module.exports = {
     saveFilms: saveFilms,
-    getAllFilms:getAllFilms,
-    removeFilm : removeFilm, 
+    getAllFilms: getAllFilms,
+    removeFilm: removeFilm,
     getFilmById: getFilmById,
-    updateFilm: updateFilm
+    updateFilm: updateFilm,
+    getFilmByType: getFilmByType,
+    getLast4Update: getLast4Update
 };
